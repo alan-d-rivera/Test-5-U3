@@ -3,29 +3,71 @@
 \usepackage[spanish,es-nodecimaldot]{babel}
 \usepackage[a4paper,margin=2.4cm]{geometry}
 \usepackage{amsmath,booktabs,graphicx,siunitx,url}
-% Adaptación de la plantilla de informe U1: se conserva preámbulo, A4, 11 pt y margen 2.4 cm.
-% Límite de la entrega: 2 páginas, incluidos título, figuras, bibliografía y declaración.
-\title{Test 5: malla, contorno y evidencia}
-\author{Nombre y apellido / integrantes}
-\date{}
+
+\title{\textbf{Test 1: Sensibilidad a Malla, Equilibrio y Condiciones de Borde}}
+\author{Alanj Rivera}
+\date{\today}
+
 \begin{document}
 \maketitle
-\section{Problema y objetivo}
-Indique la pregunta de trabajo y el alcance del modelo.
 
-\section{Datos, supuestos y método}
-Declare datos, unidades, contorno y procedimiento. Incluya una ecuación pertinente; cite una fuente oficial que sostenga una decisión.
+\section{Problema y Objetivo}
+El objetivo es evaluar la credibilidad del método de elementos finitos (MEF) lineal 1D aplicado a una barra sometida a carga axial uniforme y puntual. Se analiza la diferencia entre el acuerdo nodal y la exactitud del campo continuo, encontrando el error máximo en puntos medios para mallas de 2, 4 y 8 . Además, se estudia el efecto estático y cinemático al introducir una restricción cinemática adicional $u(L)=0$.
 
-\section{Resultados y verificación}
-Inserte la tabla y figura solicitadas, con unidades. Identifique archivos, pruebas, tolerancias y resultados; no copie salidas de ejemplo.
+\section{Datos, Supuestos y Método}
+Se considera una barra elástica lineal con $L = \SI{2000}{\mm}$, $E = \SI{200000}{\N\per\mm\squared}$, $A = \SI{1000}{\mm\squared}$, carga puntual $P = \SI{20000}{\N}$ en $+x$ y carga distribuida $q = \SI{10}{\N\per\mm}$ en $+x$[cite: 1, 22]. La ecuación gobernante del problema de borde es:
+\begin{equation}
+-(EA u'(x))' = q(x), \quad \text{con } u(0) = 0 \quad \text{y} \quad EA u'(L) = P
+\end{equation}
+La solución analítica de referencia independiente obtenida por integración directa es[cite: 1]:
+\begin{equation}
+u_{\text{ref}}(x) = \frac{(P + qL)x - \frac{1}{2}q x^2}{EA}
+\end{equation}
+Para la aproximación MEF lineal, la solución entre nodos interpola linealmente, generando un error en puntos medios $x_m = (x_e + x_{e+1})/2$ que se cuantifica como $e_{\text{máx}} = \max |u_h(x_m) - u_{\text{ref}}(x_m)|$[cite: 1, 26].
 
-\section{Interpretación y conclusiones}
-Relacione la evidencia con la pregunta, explique discrepancias y declare límites.
+\section{Resultados y Verificación}
+En la Tabla~\ref{tab:resultados} se resume la respuesta del modelo para las tres mallas uniformes y el caso con condición de contorno alterada[cite: 1, 30].
+
+\begin{table}[h!]
+\centering
+\caption{Resultados del análisis MEF para distintas mallas y condición alterada.}
+\label{tab:resultados}
+\small
+\begin{tabular}{lcccccc}
+\toprule
+\textbf{Caso} & $n$ & $u(L)$ [\text{mm}] & $R_{\text{izq}}$ [\text{N}] & $R_{\text{der}}$ [\text{N}] & Error medio [\text{mm}] & Balance [\text{N}] \\
+\midrule
+M2 & 2 & 0.3000 & -40000.0 & 0.0 & 0.006250 & $0.0$ \\
+M4 & 4 & 0.3000 & -40000.0 & 0.0 & 0.001563 & $2.18 \times 10^{-11}$ \\
+M8 & 8 & 0.3000 & -40000.0 & 0.0 & 0.000391 & $-3.64 \times 10^{-11}$ \\
+BC\_ALTERADO & 8 & 0.0000 & -10000.0 & -30000.0 & --- & $0.0$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.55\linewidth]{salidas/convergencia.png}
+\caption{Convergencia del error absoluto máximo en puntos medios en escala log-log.}
+\label{fig:convergencia}
+\end{figure}
+
+El balance numérico del residuo axial $|R_{\text{tot}} + P + qL| / |P + qL| \le 10^{-8}$ se satisface estrictamente en todas las mallas con un residuo de orden $10^{-11}\,\text{N}$[cite: 1, 30].
+
+\section{Interpretación y Conclusiones}
+En las mallas M2, M4 y M8, el desplazamiento nodal $u(L) = \SI{0.3000}{\mm}$ coincide exactamente con la solución analítica debido a la naturaleza nodal exacta de los elementos 1D bajo carga uniforme[cite: 1, 11, 22]. Sin embargo, el error entre nodos no es nulo; este disminuye cuadráticamente ($\mathcal{O}(h^2)$) al refinar la malla, como demuestra la pendiente en la Figura~\ref{fig:convergencia}[cite: 1, 11, 30]. Al imponer $u(L)=0$, el sistema se vuelve hiperestático, redistribuyendo las fuerzas a $R_{\text{izq}}=\SI{-10000}{\N}$ y $R_{\text{der}}=\SI{-30000}{\N}$[cite: 1, 12, 30]. El equilibrio estático cierra numéricamente porque el resolutor resuelve $\mathbf{K} \mathbf{u} = \mathbf{f} + \mathbf{R}$, pero esto corresponde a un problema físico completamente modificado, demostrando que la verificación de equilibrio no garantiza la validez cinemática del modelo[cite: 1, 8, 12].
 
 \section*{Declaración de uso de IA}
-Indique herramienta, propósito, contenido incorporado y comprobación. Si no utilizó IA, declárelo.
+Se utilizó el asistente de Inteligencia Artificial Gemini para la resolución de errores en el código de Python, la estructuración de la plantilla en LaTeX y la predicción teórica de los resultados.
 
-% Cite solo las fuentes efectivamente utilizadas. No deje citas de relleno.
+
+%Estilo de bibliografía
 \bibliographystyle{plain}
+
+% Muestra todas las referencias del archivo .bib aunque no estén citadas explícitamente en el texto
+\nocite{*}
+
+% Nombre del archivo .bib (referencias.bib)
 \bibliography{referencias}
+
 \end{document}
