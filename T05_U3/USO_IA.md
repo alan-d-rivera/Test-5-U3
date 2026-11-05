@@ -1,6 +1,6 @@
 # Declaración de Uso de Inteligencia Artificial
 
-- **Herramienta:** Asistente IA (Gemini / ChatGPT).
+- **Herramienta:** Asistente IA (Gemini).
 - **Fecha:** 05/11/2026.
 - **Propósito:** Se utilizo el asistente de Inteligencia Artificial Gemini para la resolucion de errores en el codigo
 de Python, la estructuracion de la plantilla en LaTeX y la prediccion teorica de los resultado
